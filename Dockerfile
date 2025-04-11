@@ -6,6 +6,9 @@ WORKDIR /workspace/app
 COPY build.gradle.kts settings.gradle.kts gradlew ./
 COPY gradle ./gradle
 
+# Make gradlew executable
+RUN chmod +x ./gradlew
+
 # Download dependencies
 RUN ./gradlew dependencies --no-daemon
 
@@ -16,12 +19,14 @@ COPY src ./src
 RUN ./gradlew bootJar --no-daemon
 
 # Runtime stage
-FROM eclipse-temurin:21-jdk
-VOLUME /tmp
+FROM eclipse-temurin:21-jre-slim
 WORKDIR /app
 
 # Copy the jar from build stage
 COPY --from=build /workspace/app/build/libs/*.jar app.jar
 
-# Set entrypoint
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Expose PORT for Railway
+EXPOSE ${PORT:-8080}
+
+# Set entrypoint with Railway-friendly configuration
+ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-Djava.security.egd=file:/dev/./urandom", "-jar", "app.jar"]
