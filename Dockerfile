@@ -1,5 +1,5 @@
 # Build stage
-FROM eclipse-temurin:21-jdk AS build
+FROM eclipse-temurin:21.0.2_13-jdk AS build
 WORKDIR /workspace/app
 
 # Copy gradle files
@@ -19,7 +19,7 @@ COPY src ./src
 RUN ./gradlew bootJar --no-daemon
 
 # Runtime stage
-FROM eclipse-temurin:21-jre-slim
+FROM eclipse-temurin:21.0.2_13-jre
 WORKDIR /app
 
 # Copy the jar from build stage
